@@ -12,8 +12,10 @@ const useAppRouter = () => {
   ) {
     const route = routeMap.get(name);
     if (fromApp) {
+      // @ts-ignore
       router.push(route, params, { animate: true });
     } else {
+      // @ts-ignore
       router.push(route, params, { animate: false });
     }
   }
@@ -32,11 +34,14 @@ const useAppRouter = () => {
     const route = routeMap.get(name);
     if (fromApp) {
       if (isNavigationBar) {
+        // @ts-ignore
         router.replace(route, params, { animate: false });
       } else {
+        // @ts-ignore
         router.replace(route, params, { animate: true });
       }
     } else {
+      // @ts-ignore
       router.replace(route, params, { animate: false });
     }
   }

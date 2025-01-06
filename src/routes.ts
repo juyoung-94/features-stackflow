@@ -23,6 +23,7 @@ export type RootStackParamList = {
 };
 
 export const routeMap = Object.entries(routes).reduce((acc, [key, value]) => {
+  // @ts-ignore
   acc.set(value, key);
   return acc;
 }, new Map<Routes, keyof typeof routes>());

@@ -107,7 +107,6 @@ const appSlice = createSlice({
       state.activityName = action.payload;
     },
   },
-  extraReducers: (builder) => {},
 });
 
 export default appSlice;
