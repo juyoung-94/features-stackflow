@@ -1,13 +1,14 @@
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 
 import { Frame } from "@/atoms";
 
-import Button from "../Button";
 import { colors } from "@/styles";
-import { navigationBarSlice, useAppDispatch, useAppSelector } from "@/libs";
+import { useAppSelector } from "@/libs";
 import Icon from "../Icon";
 import { useAppRouter } from "@/hooks";
-import { Routes, routes } from "@/routes";
+import { routes, Routes } from "@/routes";
+import { useActivity } from "@stackflow/react";
+import Button from "../Button";
 
 const navigationBarList: {
   name: string;
@@ -16,51 +17,44 @@ const navigationBarList: {
 }[] = [
   {
     name: "Home",
-    path: routes.Main,
+    path: "/",
     icon: <Icon type="solid" name={"square"} />,
   },
   {
     name: "navbarA",
-    path: routes.NavbarA,
+    path: "/navbarA/",
     icon: <Icon type="solid" name={"square"} />,
   },
   {
     name: "navbarB",
-    path: routes.NavbarB,
+    path: "/navbarB/",
     icon: <Icon type="solid" name={"square"} />,
   },
   {
     name: "navbarC",
-    path: routes.NavbarC,
+    path: "/navbarC/",
     icon: <Icon type="solid" name={"square"} />,
   },
 ];
 
 export default function NavigationBar() {
-  const pathname = location.pathname;
   const safeArea = useAppSelector((state) => state.app.response.safeArea);
+  const { size } = useAppSelector((state) => state.navigationBar);
+  const [isNavigationBar, setIsNavigationBar] = useState(true);
+  const activity = useActivity();
   const router = useAppRouter();
-  const dispatch = useAppDispatch();
-  const { isNavigationBar, size } = useAppSelector(
-    (state) => state.navigationBar
-  );
-  const [path, setPath] = useState("");
-  const activityName = useAppSelector((state) => state.app.activityName);
+
   useEffect(() => {
-    const visibilityChangeHandler = () => {
-      if (typeof window !== "undefined") {
-        if (
-          navigationBarList.some((item) => item.path === routes[activityName])
-        ) {
-          dispatch(navigationBarSlice.actions.setIsNavigationBar(true));
-          setPath(routes[activityName]);
-        } else {
-          dispatch(navigationBarSlice.actions.setIsNavigationBar(false));
-        }
-      }
-    };
-    visibilityChangeHandler();
-  }, [pathname, dispatch, activityName]);
+    if (
+      navigationBarList.some(
+        (v) => v.path === routes[activity.name as keyof typeof routes]
+      )
+    ) {
+      setIsNavigationBar(true);
+    } else {
+      setIsNavigationBar(false);
+    }
+  }, [activity]);
 
   return (
     <>
@@ -106,11 +100,15 @@ export default function NavigationBar() {
                   iconStyle={{
                     size: 28,
                     fill:
-                      item.path !== path ? colors.neutral[200] : colors.black,
+                      item.path !== routes[activity.name as keyof typeof routes]
+                        ? colors.neutral[200]
+                        : colors.black,
                   }}
                   onClick={() => {
-                    if (item.path !== path) {
-                      router.replace(item.path, {}, true);
+                    if (
+                      item.path !== routes[activity.name as keyof typeof routes]
+                    ) {
+                      router.push(item.path, {});
                     }
                   }}
                   fontColor={colors.black}

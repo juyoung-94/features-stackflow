@@ -1,4 +1,3 @@
-import { routes } from "@/routes";
 import { colors } from "@/styles";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -39,7 +38,6 @@ export type AppResponse = {
 
 type AppInitialState = {
   response: AppResponse;
-  activityName: keyof typeof routes;
 };
 
 export const appInitialState: AppInitialState = {
@@ -63,7 +61,6 @@ export const appInitialState: AppInitialState = {
     },
     files: [],
   },
-  activityName: "Main",
 };
 
 const appSlice = createSlice({
@@ -99,12 +96,6 @@ const appSlice = createSlice({
     },
     setFiles(state, action: PayloadAction<AppResponse["files"]>) {
       state.response.files = action.payload;
-    },
-    setActivityName(
-      state,
-      action: PayloadAction<AppInitialState["activityName"]>
-    ) {
-      state.activityName = action.payload;
     },
   },
 });

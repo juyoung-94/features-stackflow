@@ -1,19 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import { Frame } from "@/atoms";
 import { colors, UseBorderStyleProps } from "@/styles";
-import { headerSlice, useAppDispatch, useAppSelector } from "@/libs";
+import { useAppSelector } from "@/libs";
 import useHeader from "./useHeader";
 import { routes, Routes } from "@/routes";
+import { useActivity } from "@stackflow/react";
 
 const Header: React.FC = () => {
-  const { isHeader, size } = useAppSelector((state) => state.header);
-  const dispatch = useAppDispatch();
-  const pathname = location.pathname;
+  const { size } = useAppSelector((state) => state.header);
   const safeArea = useAppSelector((state) => state.app.response.safeArea);
-  const [path, setPath] = useState<Routes>(routes.Main);
   const { title, icon } = useHeader();
-  const activityName = useAppSelector((state) => state.app.activityName);
+  // const activityName = useAppSelector((state) => state.app.activityName);
+  const activity = useActivity();
 
   const headerPropsMap: Partial<
     Record<
@@ -98,34 +97,13 @@ const Header: React.FC = () => {
     };
   }, [icon, title]);
 
-  useEffect(() => {
-    const visibilityChangeHandler = () => {
-      try {
-        if (typeof window !== "undefined") {
-          if (
-            Object.keys(headerPropsMap).some(
-              (key) => key === routes[activityName]
-            )
-          ) {
-            dispatch(
-              headerSlice.actions.setIsHeader(
-                headerPropsMap[routes[activityName]] ? true : false
-              )
-            );
-            setPath(routes[activityName]);
-          } else {
-            dispatch(headerSlice.actions.setIsHeader(false));
-          }
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    visibilityChangeHandler();
-  }, [pathname, headerPropsMap, activityName, dispatch]);
+  const headerProps = useMemo(
+    () => headerPropsMap[routes[activity.name as keyof typeof routes]],
+    [activity, headerPropsMap]
+  );
   return (
     <>
-      {isHeader && (
+      {headerProps && (
         <>
           <Frame w={"100%"} bg={safeArea.color.top} minH={size} h={size} />
           <Frame
@@ -136,18 +114,16 @@ const Header: React.FC = () => {
             left={0}
             w={"100%"}
             px={20}
-            zIndex={9999}
+            zIndex={99}
             gap={"auto"}
             alignment="center"
             pt={safeArea.size.top}
             h={size + safeArea.size.top}
             minH={size + safeArea.size.top}
-            stroke={
-              headerPropsMap[path]?.stroke as UseBorderStyleProps["stroke"]
-            }
+            stroke={headerProps?.stroke as UseBorderStyleProps["stroke"]}
           >
             <Frame row h={"100%"} alignment="center" gap={16} zIndex={100}>
-              {headerPropsMap[path]?.left}
+              {headerProps?.left}
             </Frame>
             <Frame
               w={"100%"}
@@ -158,10 +134,10 @@ const Header: React.FC = () => {
               inset={0}
               zIndex={99}
             >
-              {headerPropsMap[path]?.center}
+              {headerProps?.center}
             </Frame>
             <Frame row h={"100%"} alignment="center" gap={10} zIndex={100}>
-              {headerPropsMap[path]?.right}
+              {headerProps?.right}
             </Frame>
           </Frame>
         </>
